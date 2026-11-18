@@ -5,13 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
 <title>Order Desk</title>
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#0f5c4d">
+<meta name="theme-color" content="#3b49c9">
+<link rel="icon" type="image/png" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <style>
-:root{--bg:#f6f8f6;--card:#fff;--ink:#14201f;--mute:#5d6b68;--line:#d8e0dc;--pine:#0f5c4d;--on-pine:#fff;--mint:#e2f0ea;--pending:#b7791f;--packed:#2b6cb0;--delivered:#2f855a;--cancelled:#9b2c2c;--queued:#6b7280;color-scheme:light}
-@media (prefers-color-scheme:dark){:root{--bg:#0e1514;--card:#162120;--ink:#e8f0ee;--mute:#9ab0ab;--line:#26363a;--pine:#35b59a;--on-pine:#06201b;--mint:#1b2f2b;--pending:#e0a84a;--packed:#63a4e8;--delivered:#5cc48a;--cancelled:#e07a7a;--queued:#9ca3af;color-scheme:dark}}
+:root{--bg:#f4f6fc;--card:#fff;--ink:#151a33;--mute:#5c6585;--line:#dde2f0;--brand:#4455d6;--on-brand:#fff;--tint:#e7ebff;--pending:#b45309;--packed:#2563eb;--delivered:#16a34a;--cancelled:#dc2626;--queued:#64748b;--c1:#4f6bff;--c2:#8b5cf6;--c3:#f59e0b;--c4:#ec4899;--c5:#14b8a6;--c6:#f97316;--c7:#22c55e;--c8:#06b6d4;color-scheme:light}
+@media (prefers-color-scheme:dark){:root{--bg:#0e1222;--card:#171c33;--ink:#e9ecfa;--mute:#9aa4c7;--line:#283050;--brand:#8d9bff;--on-brand:#0c1030;--tint:#1d2447;--pending:#f5b042;--packed:#6aa7ff;--delivered:#4ade80;--cancelled:#f87171;--queued:#94a3b8;--c1:#7c93ff;--c2:#a78bfa;--c3:#fbbf24;--c4:#f472b6;--c5:#2dd4bf;--c6:#fb923c;--c7:#4ade80;--c8:#22d3ee;color-scheme:dark}}
 *{box-sizing:border-box}
 [hidden]{display:none!important}
 html,body{margin:0}
@@ -24,18 +25,18 @@ h2{font-size:1.05rem;margin:18px 0 8px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:14px}
 label{display:block;font-size:.9rem;color:var(--mute);margin-bottom:10px}
 input,textarea{display:block;width:100%;margin-top:4px;padding:11px 12px;font:inherit;font-size:16px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px}
-input:focus-visible,textarea:focus-visible,button:focus-visible{outline:2px solid var(--pine);outline-offset:2px}
-.btn{font:inherit;font-weight:600;padding:11px 16px;border-radius:8px;border:1px solid var(--pine);background:var(--pine);color:var(--on-pine);cursor:pointer}
-.btn.ghost{background:transparent;color:var(--pine)}
+input:focus-visible,textarea:focus-visible,button:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+.btn{font:inherit;font-weight:600;padding:11px 16px;border-radius:8px;border:1px solid var(--brand);background:var(--brand);color:var(--on-brand);cursor:pointer}
+.btn.ghost{background:transparent;color:var(--brand)}
 .btn.sm{padding:6px 10px;font-size:.88rem}
 .btn:disabled{opacity:.6}
 .msg{color:var(--cancelled);min-height:1.3em;margin:8px 0 0}
-header{position:sticky;top:0;z-index:5;background:var(--pine);color:var(--on-pine);padding-top:env(safe-area-inset-top,0px)}
+header{position:sticky;top:0;z-index:5;background:linear-gradient(120deg,#3b49c9,#7a3fe0);color:#fff;padding-top:env(safe-area-inset-top,0px)}
 header .wrap{display:flex;align-items:center;gap:10px;padding:10px 14px}
 header b{font-size:1.05rem}
 header .grow{flex:1;min-width:0}
 header .who{font-size:.85rem;opacity:.85}
-header .btn{background:transparent;color:var(--on-pine);border-color:currentColor}
+header .btn{background:transparent;color:#fff;border-color:rgba(255,255,255,.6)}
 .net{font-size:.8rem;padding:3px 9px;border-radius:99px;background:rgba(255,255,255,.18)}
 .net.off{background:#9b2c2c;color:#fff}
 .row{display:grid;grid-template-columns:1fr 84px 40px;gap:8px;margin-bottom:8px}
@@ -43,12 +44,12 @@ header .btn{background:transparent;color:var(--on-pine);border-color:currentColo
 .row button{border:1px solid var(--line);background:transparent;color:var(--mute);border-radius:8px;font-size:1.2rem;cursor:pointer}
 .chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px}
 .chip{flex:none;font:inherit;font-size:.9rem;padding:7px 13px;border-radius:99px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
-.chip[aria-pressed=true]{background:var(--pine);border-color:var(--pine);color:var(--on-pine)}
+.chip[aria-pressed=true]{background:var(--brand);border-color:var(--brand);color:var(--on-brand)}
 .order{background:var(--card);border:1px solid var(--line);border-left:6px solid var(--queued);border-radius:10px;padding:12px 14px;margin-bottom:10px}
 .order.pending{border-left-color:var(--pending)}.order.packed{border-left-color:var(--packed)}
 .order.delivered{border-left-color:var(--delivered)}.order.cancelled{border-left-color:var(--cancelled)}
 .order.fresh{animation:flash 1.6s ease-out}
-@keyframes flash{from{background:var(--mint)}}
+@keyframes flash{from{background:var(--tint)}}
 .top{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
 .top b{font-size:1.05rem}
 .tag{font-size:.82rem;font-weight:600;color:var(--queued)}
@@ -57,10 +58,10 @@ header .btn{background:transparent;color:var(--on-pine);border-color:currentColo
 .meta{font-size:.85rem;color:var(--mute)}
 .acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
 .empty{text-align:center;color:var(--mute);padding:28px 0}
-.banner{background:var(--mint);border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin-bottom:12px}
+.banner{background:var(--tint);border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin-bottom:12px}
 .tabs{display:flex;gap:6px;margin-bottom:12px;border-bottom:1px solid var(--line)}
 .tab{font:inherit;font-weight:600;padding:9px 14px;background:none;border:0;border-bottom:3px solid transparent;color:var(--mute);cursor:pointer}
-.tab[aria-selected=true]{color:var(--pine);border-bottom-color:var(--pine)}
+.tab[aria-selected=true]{color:var(--brand);border-bottom-color:var(--brand)}
 .kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:12px 0}
 .kpi{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
 .kpi b{display:block;font-size:1.2rem}
@@ -68,25 +69,63 @@ header .btn{background:transparent;color:var(--on-pine);border-color:currentColo
 .card h2{margin-top:0}
 .bar{display:grid;grid-template-columns:minmax(80px,34%) 1fr auto;gap:8px;align-items:center;margin:8px 0;font-size:.92rem}
 .bar .name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.bar .track{background:var(--mint);border-radius:4px;height:14px;overflow:hidden}
-.bar .fill{display:block;background:var(--pine);height:100%;border-radius:4px}
+.bar .track{background:var(--tint);border-radius:4px;height:14px;overflow:hidden}
+.bar .fill{display:block;background:var(--brand);height:100%;border-radius:4px}
 .bar .val{color:var(--mute);font-size:.85rem;text-align:right;font-variant-numeric:tabular-nums}
 .cols{display:flex;align-items:flex-end;gap:2px;height:90px;margin-top:8px}
-.cols i{flex:1;background:var(--pine);border-radius:3px 3px 0 0;min-height:2px;opacity:.85}
+.cols i{flex:1;background:var(--brand);border-radius:3px 3px 0 0;min-height:2px;opacity:.85}
 .axis{display:flex;justify-content:space-between;font-size:.75rem;color:var(--mute);margin-top:4px}
 .search{display:grid;grid-template-columns:118px 1fr;gap:8px;margin-bottom:8px}
 .search input{margin:0}
 select{font:inherit;font-size:16px;padding:11px 10px;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:8px}
-select:focus-visible{outline:2px solid var(--pine);outline-offset:2px}
-.hit{font-weight:700;color:var(--pine)}
+select:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+.hit{font-weight:700;color:var(--brand)}
+.logo{width:56px;height:56px;display:block;margin-top:8vh}
+#loginView h1{margin-top:10px}
+header .logo{width:32px;height:32px;margin:0;flex:none}
+#bar{position:fixed;top:0;left:0;right:0;height:3px;z-index:20;overflow:hidden;opacity:0;transition:opacity .15s;pointer-events:none}
+#bar::after{content:"";position:absolute;inset:0;width:40%;background:linear-gradient(90deg,#f59e0b,#ec4899,#8b5cf6);animation:slide 1s ease-in-out infinite}
+body.loading #bar{opacity:1}
+@keyframes slide{from{transform:translateX(-100%)}to{transform:translateX(260%)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes shimmer{to{background-position:-200% 0}}
+.btn[aria-busy=true]{position:relative;padding-left:38px}
+.btn[aria-busy=true]::before{content:"";position:absolute;left:14px;top:50%;width:14px;height:14px;margin-top:-7px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:spin .7s linear infinite}
+.icon{flex:none;background:transparent;border:1px solid rgba(255,255,255,.6);color:#fff;border-radius:8px;width:34px;height:34px;display:grid;place-items:center;cursor:pointer}
+body.loading #reload svg{animation:spin .8s linear infinite}
+.skel{border-radius:10px;height:84px;margin-bottom:10px;background:linear-gradient(90deg,var(--line) 25%,var(--tint) 50%,var(--line) 75%);background-size:200% 100%;animation:shimmer 1.3s linear infinite}
+.kpi{border-top:4px solid var(--k,var(--brand))}
+.kpi b{color:var(--k,var(--ink))}
+.chip[aria-pressed=true]{background:var(--cc,var(--brand));border-color:var(--cc,var(--brand))}
+.chip i{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--cc,var(--brand));margin-right:6px}
+.chip[aria-pressed=true] i{background:var(--on-brand)}
+.bar.go{cursor:pointer;border-radius:6px;padding:2px 4px;margin-left:-4px;margin-right:-4px}
+.bar.go:hover,.bar.go:focus-visible{background:var(--tint)}
+.track{display:flex}
+.stack{display:flex;height:100%}
+.stack i{display:block}
+.donutrow{display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+.donut{width:120px;height:120px;border-radius:50%;flex:none;display:grid;place-items:center}
+.donut::before{content:"";grid-area:1/1;width:76px;height:76px;border-radius:50%;background:var(--card)}
+.donut b{grid-area:1/1;font-size:1.3rem}
+.legend{display:grid;gap:4px;flex:1;min-width:150px}
+.legend button{display:flex;align-items:center;gap:8px;font:inherit;background:none;border:0;color:var(--ink);cursor:pointer;padding:5px 6px;border-radius:6px;text-align:left}
+.legend button:hover{background:var(--tint)}
+.legend i{width:10px;height:10px;border-radius:50%;background:var(--c)}
+.legend span{margin-left:auto;color:var(--mute)}
+.readout{font-weight:600;min-height:1.4em;margin-top:6px}
+.cols i{cursor:pointer;background:var(--col,var(--c1))}
+.cols i.sel{background:var(--c3);opacity:1}
 #toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:8px;max-width:90vw;opacity:0;pointer-events:none;transition:opacity .2s}
 #toast.show{opacity:1}
-@media (prefers-reduced-motion:reduce){.order.fresh{animation:none}}
+@media (prefers-reduced-motion:reduce){.order.fresh,.skel,#bar::after,body.loading #reload svg,.btn[aria-busy=true]::before{animation:none}}
 </style>
 </head>
 <body>
 
+<div id="bar"></div>
 <section id="loginView" class="wrap">
+  <svg class="logo" viewBox="0 0 48 48" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4f6bff"/><stop offset="1" stop-color="#8b5cf6"/></linearGradient></defs><rect width="48" height="48" rx="12" fill="url(#lg)"/><rect x="21" y="11" width="6" height="26" rx="3" fill="#fff"/><rect x="11" y="21" width="26" height="6" rx="3" fill="#fff"/></svg>
   <h1>Order Desk</h1>
   <p class="sub">Sign in with the shop code your provider gave you.</p>
   <form id="loginForm" class="card">
@@ -101,7 +140,9 @@ select:focus-visible{outline:2px solid var(--pine);outline-offset:2px}
 <div id="appView" hidden>
   <header>
     <div class="wrap">
+      <svg class="logo" viewBox="0 0 48 48" aria-hidden="true"><rect width="48" height="48" rx="12" fill="#fff"/><rect x="21" y="11" width="6" height="26" rx="3" fill="#4455d6"/><rect x="11" y="21" width="26" height="6" rx="3" fill="#4455d6"/></svg>
       <div class="grow"><b id="shopName"></b><div class="who" id="who"></div></div>
+      <button class="icon" id="reload" aria-label="Refresh"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-3-6.7"/><polyline points="21 3 21 9 15 9"/></svg></button>
       <span class="net" id="net">Live</span>
       <button class="btn sm" id="out">Sign out</button>
     </div>
@@ -160,7 +201,7 @@ const LABEL = { pending: 'Pending', packed: 'Packed', delivered: 'Delivered', ca
 let S = store.get('session', null), orders = [], seen = null, filter = 'all';
 let fresh = new Set(), timer = null, busy = false, again = false;
 
-async function api(action, data = {}) {
+async function rawApi(action, data = {}) {
   const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action, token: S && S.token, ...data }) });
   const j = await res.json();
   if (!j.ok) {
@@ -172,6 +213,13 @@ async function api(action, data = {}) {
   return j;
 }
 
+let inflight = 0;
+async function api(a, d) {
+  inflight++; document.body.classList.add('loading');
+  try { return await rawApi(a, d); }
+  finally { if (--inflight === 0) document.body.classList.remove('loading'); }
+}
+
 function toast(t) {
   const el = $('#toast'); el.textContent = t; el.classList.add('show');
   clearTimeout(toast.t); toast.t = setTimeout(() => el.classList.remove('show'), 3000);
@@ -180,7 +228,7 @@ function toast(t) {
 // ---------- login / logout ----------
 $('#loginForm').addEventListener('submit', async ev => {
   ev.preventDefault();
-  const b = $('#loginBtn'); b.disabled = true; $('#loginMsg').textContent = '';
+  const b = $('#loginBtn'); b.disabled = true; b.setAttribute('aria-busy', 'true'); b.textContent = 'Signing in…'; $('#loginMsg').textContent = '';
   S = null;
   try {
     const j = await api('login', { shop_id: $('#shop').value, name: $('#uname').value, pin: $('#pin').value });
@@ -191,12 +239,12 @@ $('#loginForm').addEventListener('submit', async ev => {
   } catch (e) {
     $('#loginMsg').textContent = e instanceof TypeError ? 'No connection. Check your internet and try again.' : e.message;
   }
-  b.disabled = false;
+  b.disabled = false; b.removeAttribute('aria-busy'); b.textContent = 'Sign in';
 });
 
 function logout(msg) {
   S = null; store.set('session', null);
-  clearInterval(timer); seen = null; orders = []; $('#q').value = '';
+  clearInterval(timer); seen = null; orders = []; $('#q').value = ''; agentF = null; loaded = false;
   $('#appView').hidden = true; $('#loginView').hidden = false;
   $('#loginMsg').textContent = msg || '';
 }
@@ -213,7 +261,7 @@ function start() {
   $('#tabs').hidden = !owner;
   $('#listTitle').textContent = owner ? 'Orders, live' : 'Your orders';
   if (owner) setTab('orders');
-  render(); refresh();
+  loaded = false; render(); refresh();
   clearInterval(timer);
   timer = setInterval(refresh, owner ? 6000 : 20000);
 }
@@ -233,10 +281,16 @@ async function flush() {
   store.set('outbox', rest);
 }
 
+let cur = null, loaded = false;
 async function refresh() {
   if (!S) return;
-  if (busy) { again = true; return; }
+  if (busy) { again = true; return cur; }
   busy = true;
+  cur = (async () => { do { again = false; await cycle(); } while (again && S); busy = false; })();
+  return cur;
+}
+async function cycle() {
+  if (store.get('outbox', []).length) setNet('sync');
   try {
     await flush();
     const j = await api('listOrders');
@@ -252,14 +306,14 @@ async function refresh() {
     if (e.server) { $('#banner').textContent = e.message; $('#banner').hidden = false; setNet(true); }
     else setNet(false);
   } finally {
-    busy = false;
-    if (again) { again = false; refresh(); }
+    loaded = true; render();
   }
 }
 
 function setNet(ok) {
   const n = $('#net');
   const waiting = store.get('outbox', []).length;
+  if (ok === 'sync') { n.className = 'net'; n.textContent = 'Sending ' + waiting + '…'; return; }
   n.className = 'net' + (ok ? '' : ' off');
   n.textContent = ok ? 'Live' : (waiting ? 'Offline, ' + waiting + ' waiting' : 'Offline');
 }
@@ -280,7 +334,7 @@ function addRow(name = '', qty = '') {
 }
 $('#addRow').addEventListener('click', () => { addRow(); $('#items').lastChild.querySelector('.in').focus(); });
 
-$('#orderForm').addEventListener('submit', ev => {
+$('#orderForm').addEventListener('submit', async ev => {
   ev.preventDefault();
   const items = [...document.querySelectorAll('.row')].map(r => {
     const n = r.querySelector('.in').value.trim(), q = r.querySelector('.iq').value.trim();
@@ -294,8 +348,11 @@ $('#orderForm').addEventListener('submit', ev => {
   };
   store.set('outbox', [...store.get('outbox', []), o]); // saved on the phone first, so nothing is lost offline
   $('#cust').value = ''; $('#notes').value = ''; $('#items').innerHTML = ''; addRow();
-  toast('Order saved. Sending…');
-  render(); refresh();
+  render();
+  const b = $('#saveBtn'); b.disabled = true; b.setAttribute('aria-busy', 'true'); b.textContent = 'Sending…';
+  await refresh();
+  b.disabled = false; b.removeAttribute('aria-busy'); b.textContent = 'Save order';
+  toast(store.get('outbox', []).length ? 'Saved on this phone. It will send when you’re back online.' : 'Order sent ✓');
 });
 
 // ---------- list ----------
@@ -304,18 +361,20 @@ function render() {
   const queued = S.role === 'owner' ? [] : store.get('outbox', []).map(o => ({
     order_id: o.order_id, created_at: o.ts, agent: S.name, customer: o.customer, items: o.items, notes: o.notes, status: 'queued'
   }));
-  const all = [...queued, ...orders];
+  if (!loaded) { $('#list').innerHTML = '<div class="skel"></div>'.repeat(3); $('#resultCount').hidden = true; return; }
+  const all = [...queued, ...orders].filter(o => !agentF || o.agent === agentF);
   if (S.role === 'owner') {
     const n = s => all.filter(o => o.status === s).length;
-    const chips = [['all', 'All', all.length], ['pending', 'Pending', n('pending')], ['packed', 'Packed', n('packed')], ['delivered', 'Delivered', n('delivered')]];
+    const chips = [['all', 'All', all.length]].concat(ST.map(s => [s, LABEL[s], n(s)]));
     $('#ownerBar').innerHTML = chips.map(c =>
-      `<button class="chip" data-f="${c[0]}" aria-pressed="${filter === c[0]}">${c[1]} ${c[2]}</button>`).join('');
+      `<button class="chip" data-f="${c[0]}" aria-pressed="${filter === c[0]}"${c[0] === 'all' ? '' : ` style="--cc:var(--${c[0]})"`}>${c[0] === 'all' ? '' : '<i></i>'}${c[1]} ${c[2]}</button>`).join('') +
+      (agentF ? `<button class="chip" data-f="__agent" style="--cc:var(--c2)" aria-pressed="true"><i></i>Agent: ${esc(agentF)} ✕</button>` : '');
   }
   const q = $('#q').value.trim().toLowerCase(), by = $('#searchBy').value;
   const meds = o => String(o.items).split(';').map(s => s.split('×')[0].trim().toLowerCase());
   const match = o => !q || (by === 'shop' ? String(o.customer).toLowerCase().includes(q) : meds(o).some(m => m.includes(q)));
   const list = all.filter(o => (filter === 'all' || o.status === filter) && match(o));
-  $('#resultCount').hidden = !q || tab === 'analytics';
+  $('#resultCount').hidden = !(q || agentF) || tab === 'analytics';
   $('#resultCount').textContent = list.length + ' of ' + all.length + ' orders match';
   $('#list').innerHTML = list.length ? list.map(card).join('')
     : '<p class="empty">' + (q ? 'No orders match your search.' : S.role === 'owner' ? 'No orders here yet. New orders appear on their own.' : 'No orders yet. Save your first order above.') + '</p>';
@@ -359,7 +418,9 @@ $('#list').addEventListener('click', async ev => {
 
 $('#ownerBar').addEventListener('click', ev => {
   const c = ev.target.closest('.chip');
-  if (c) { filter = c.dataset.f; render(); }
+  if (!c) return;
+  if (c.dataset.f === '__agent') agentF = null; else filter = c.dataset.f;
+  render();
 });
 
 // ---------- analytics (owner) ----------
@@ -383,7 +444,7 @@ $('#periodBar').addEventListener('click', ev => {
 async function loadAnalytics() {
   $('#periodBar').innerHTML = [[7, 'Last 7 days'], [30, 'Last 30 days'], [90, 'Last 90 days']].map(p =>
     `<button class="chip" data-d="${p[0]}" aria-pressed="${days === p[0]}">${p[1]}</button>`).join('');
-  $('#analyticsBody').innerHTML = '<p class="empty">Loading…</p>';
+  $('#analyticsBody').innerHTML = '<div class="skel" style="height:170px"></div><div class="skel" style="height:220px"></div><div class="skel" style="height:260px"></div>';
   try {
     const j = await api('analytics', { days });
     if (tab === 'analytics') drawAnalytics(j);
@@ -392,26 +453,52 @@ async function loadAnalytics() {
   }
 }
 
-function bars(rows, val, fmt) {
+const PAL = ['var(--c1)', 'var(--c2)', 'var(--c3)', 'var(--c4)', 'var(--c5)', 'var(--c6)', 'var(--c7)', 'var(--c8)'];
+const ST = ['pending', 'packed', 'delivered', 'cancelled'];
+let agentF = null;
+
+function bars(rows, val, fmt, opt = {}) {
   const m = Math.max(...rows.map(val), 1);
-  return rows.map(r => `<div class="bar"><span class="name" title="${esc(r.name)}">${esc(r.name)}</span>
-    <span class="track"><span class="fill" style="width:${Math.max(val(r) / m * 100, 2)}%"></span></span>
-    <span class="val">${fmt(r)}</span></div>`).join('');
+  return rows.map((r, i) => {
+    const pct = Math.max(val(r) / m * 100, 3);
+    const inner = opt.stack
+      ? `<span class="stack" style="width:${pct}%">${ST.map(s => r[s] ? `<i style="flex:${r[s]};background:var(--${s})"></i>` : '').join('')}</span>`
+      : `<span class="fill" style="width:${pct}%;background:${PAL[i % 8]}"></span>`;
+    const go = opt.attr ? ` go" data-${opt.attr}="${esc(r.name)}" role="button" tabindex="0` : '';
+    return `<div class="bar${go}"><span class="name" title="${esc(r.name)}">${esc(r.name)}</span>
+      <span class="track">${inner}</span><span class="val">${fmt(r)}</span></div>`;
+  }).join('');
 }
 
-function cols(rows, fmt) {
+function cols(rows, fmt, color) {
   const m = Math.max(...rows.map(r => r.v), 1);
   const lbl = d => new Date(d + 'T00:00:00').toLocaleDateString([], { day: 'numeric', month: 'short' });
-  return `<div class="cols">${rows.map(r => `<i style="height:${r.v / m * 100}%" title="${lbl(r.d)}: ${fmt(r.v)}"></i>`).join('')}</div>
-    <div class="axis"><span>${lbl(rows[0].d)}</span><span>${lbl(rows[rows.length - 1].d)}</span></div>`;
+  const last = rows[rows.length - 1];
+  return `<div class="chart"><div class="readout">${lbl(last.d)}: ${fmt(last.v)}</div>
+    <div class="cols" style="--col:${color}">${rows.map(r => `<i style="height:${r.v / m * 100}%" data-t="${lbl(r.d)}: ${fmt(r.v)}"></i>`).join('')}</div>
+    <div class="axis"><span>${lbl(rows[0].d)}</span><span>${lbl(last.d)}</span></div></div>`;
 }
 
 function drawAnalytics(j) {
+  const tot = { pending: 0, packed: 0, delivered: 0, cancelled: 0 };
+  j.agents.forEach(a => ST.forEach(s => tot[s] += a[s]));
   const totalOrders = j.agents.reduce((n, a) => n + a.total, 0);
-  let out = `<div class="card"><h2>Orders by agent</h2>`;
+  let out = '';
+
+  if (totalOrders) {
+    let acc = 0;
+    const stops = ST.filter(s => tot[s]).map(s => { const a = acc; acc += tot[s] / totalOrders * 100; return `var(--${s}) ${a}% ${acc}%`; }).join(',');
+    out += `<div class="card"><h2>Order status</h2><div class="donutrow">
+      <div class="donut" style="background:conic-gradient(${stops})"><b>${totalOrders}</b></div>
+      <div class="legend">${ST.map(s => `<button data-status="${s}" style="--c:var(--${s})"><i></i>${LABEL[s]}<span>${tot[s]}</span></button>`).join('')}</div>
+      </div><p class="meta">Tap a status to see those orders.</p></div>`;
+  }
+
+  out += '<div class="card"><h2>Orders by agent</h2>';
   out += j.agents.length
-    ? bars(j.agents.map(a => ({ ...a, name: a.agent })), a => a.total, a => `${a.total} orders, ${a.delivered} delivered`) +
-      `<p class="meta">${totalOrders} orders in this period</p>` + cols(j.ordersByDay, v => v + ' orders')
+    ? bars(j.agents.map(a => ({ ...a, name: a.agent })), a => a.total, a => a.total + ' orders', { attr: 'agent', stack: true }) +
+      '<p class="meta">Bars are coloured by order status. Tap an agent to see their orders.</p>' +
+      '<h2 style="margin-top:16px">Orders per day</h2>' + cols(j.ordersByDay, v => v + ' orders', 'var(--c5)')
     : '<p class="empty">No orders in this period yet.</p>';
   out += '</div>';
 
@@ -422,16 +509,38 @@ function drawAnalytics(j) {
   } else if (s.error) {
     out += '<p class="empty">' + esc(s.error) + '</p>';
   } else {
-    out += `<div class="kpis"><div class="kpi"><b>${inr(s.total)}</b><span>Total sales</span></div>
-      <div class="kpi"><b>${s.bills.toLocaleString('en-IN')}</b><span>Bills</span></div>
-      <div class="kpi"><b>${s.units.toLocaleString('en-IN')}</b><span>Units sold</span></div></div>`;
-    out += '<h2>Sales per day</h2>' + cols(s.byDay, inr);
-    if (s.topItems.length) out += '<h2 style="margin-top:18px">Top items</h2>' + bars(s.topItems, i => i.amount, i => inr(i.amount));
-    if (s.topParties.length) out += '<h2 style="margin-top:18px">Top customers</h2>' + bars(s.topParties, p => p.amount, p => inr(p.amount));
+    out += `<div class="kpis"><div class="kpi" style="--k:var(--c1)"><b>${inr(s.total)}</b><span>Total sales</span></div>
+      <div class="kpi" style="--k:var(--c2)"><b>${s.bills.toLocaleString('en-IN')}</b><span>Bills</span></div>
+      <div class="kpi" style="--k:var(--c3)"><b>${s.units.toLocaleString('en-IN')}</b><span>Units sold</span></div></div>`;
+    out += '<h2>Sales per day</h2>' + cols(s.byDay, inr, 'var(--c1)') + '<p class="meta">Hover or tap a bar to see that day.</p>';
+    if (s.topItems.length) out += '<h2 style="margin-top:18px">Top items</h2>' + bars(s.topItems, i => i.amount, i => inr(i.amount), { attr: 'med' }) + '<p class="meta">Tap an item to find its orders.</p>';
+    if (s.topParties.length) out += '<h2 style="margin-top:18px">Top customers</h2>' + bars(s.topParties, p => p.amount, p => inr(p.amount), { attr: 'shop' });
   }
   out += '</div>';
   $('#analyticsBody').innerHTML = out;
 }
+
+// tap a chart bar to read it; tap a bar, agent or status to jump to the matching orders
+const pick = i => {
+  const c = i.closest('.chart');
+  c.querySelectorAll('i.sel').forEach(x => x.classList.remove('sel'));
+  i.classList.add('sel'); c.querySelector('.readout').textContent = i.dataset.t;
+};
+$('#analyticsBody').addEventListener('mouseover', ev => { const i = ev.target.closest('.cols i'); if (i) pick(i); });
+$('#analyticsBody').addEventListener('keydown', ev => { if (ev.key === 'Enter' && ev.target.matches('.go')) ev.target.click(); });
+$('#analyticsBody').addEventListener('click', ev => {
+  const i = ev.target.closest('.cols i');
+  if (i) { pick(i); return; }
+  const g = ev.target.closest('[data-agent],[data-med],[data-shop],[data-status]');
+  if (!g) return;
+  const d = g.dataset;
+  filter = d.status || 'all'; agentF = d.agent || null;
+  $('#searchBy').value = d.shop ? 'shop' : 'medicine';
+  $('#q').placeholder = 'Search ' + $('#searchBy').value;
+  $('#q').value = d.med || d.shop || '';
+  setTab('orders'); window.scrollTo(0, 0);
+});
+$('#reload').addEventListener('click', () => { refresh(); if (tab === 'analytics') loadAnalytics(); });
 
 // ---------- search ----------
 $('#searchBy').addEventListener('change', () => { $('#q').placeholder = 'Search ' + $('#searchBy').value; render(); });

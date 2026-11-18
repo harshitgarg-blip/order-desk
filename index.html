@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Order Desk</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0f5c4d">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<style>
+:root{--bg:#f6f8f6;--card:#fff;--ink:#14201f;--mute:#5d6b68;--line:#d8e0dc;--pine:#0f5c4d;--on-pine:#fff;--mint:#e2f0ea;--pending:#b7791f;--packed:#2b6cb0;--delivered:#2f855a;--cancelled:#9b2c2c;--queued:#6b7280;color-scheme:light}
+@media (prefers-color-scheme:dark){:root{--bg:#0e1514;--card:#162120;--ink:#e8f0ee;--mute:#9ab0ab;--line:#26363a;--pine:#35b59a;--on-pine:#06201b;--mint:#1b2f2b;--pending:#e0a84a;--packed:#63a4e8;--delivered:#5cc48a;--cancelled:#e07a7a;--queued:#9ca3af;color-scheme:dark}}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+.wrap{max-width:720px;margin:0 auto;padding:14px}
+h1{font-size:1.9rem;margin:8vh 0 4px;letter-spacing:-.02em}
+h2{font-size:1.05rem;margin:18px 0 8px}
+.sub,.mute{color:var(--mute)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:14px}
+label{display:block;font-size:.9rem;color:var(--mute);margin-bottom:10px}
+input,textarea{display:block;width:100%;margin-top:4px;padding:11px 12px;font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px}
+input:focus-visible,textarea:focus-visible,button:focus-visible{outline:2px solid var(--pine);outline-offset:2px}
+.btn{font:inherit;font-weight:600;padding:11px 16px;border-radius:8px;border:1px solid var(--pine);background:var(--pine);color:var(--on-pine);cursor:pointer}
+.btn.ghost{background:transparent;color:var(--pine)}
+.btn.sm{padding:6px 10px;font-size:.88rem}
+.btn:disabled{opacity:.6}
+.msg{color:var(--cancelled);min-height:1.3em;margin:8px 0 0}
+header{position:sticky;top:0;z-index:5;background:var(--pine);color:var(--on-pine);padding-top:env(safe-area-inset-top,0px)}
+header .wrap{display:flex;align-items:center;gap:10px;padding:10px 14px}
+header b{font-size:1.05rem}
+header .grow{flex:1;min-width:0}
+header .who{font-size:.85rem;opacity:.85}
+header .btn{background:transparent;color:var(--on-pine);border-color:currentColor}
+.net{font-size:.8rem;padding:3px 9px;border-radius:99px;background:rgba(255,255,255,.18)}
+.net.off{background:#9b2c2c;color:#fff}
+.row{display:grid;grid-template-columns:1fr 84px 40px;gap:8px;margin-bottom:8px}
+.row input{margin:0}
+.row button{border:1px solid var(--line);background:transparent;color:var(--mute);border-radius:8px;font-size:1.2rem;cursor:pointer}
+.chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px}
+.chip{flex:none;font:inherit;font-size:.9rem;padding:7px 13px;border-radius:99px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
+.chip[aria-pressed=true]{background:var(--pine);border-color:var(--pine);color:var(--on-pine)}
+.order{background:var(--card);border:1px solid var(--line);border-left:6px solid var(--queued);border-radius:10px;padding:12px 14px;margin-bottom:10px}
+.order.pending{border-left-color:var(--pending)}.order.packed{border-left-color:var(--packed)}
+.order.delivered{border-left-color:var(--delivered)}.order.cancelled{border-left-color:var(--cancelled)}
+.order.fresh{animation:flash 1.6s ease-out}
+@keyframes flash{from{background:var(--mint)}}
+.top{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.top b{font-size:1.05rem}
+.tag{font-size:.82rem;font-weight:600;color:var(--queued)}
+.pending .tag{color:var(--pending)}.packed .tag{color:var(--packed)}.delivered .tag{color:var(--delivered)}.cancelled .tag{color:var(--cancelled)}
+.order ul{margin:6px 0;padding-left:18px}
+.meta{font-size:.85rem;color:var(--mute)}
+.acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.empty{text-align:center;color:var(--mute);padding:28px 0}
+.banner{background:var(--mint);border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin-bottom:12px}
+#toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:8px;max-width:90vw;opacity:0;pointer-events:none;transition:opacity .2s}
+#toast.show{opacity:1}
+@media (prefers-reduced-motion:reduce){.order.fresh{animation:none}}
+</style>
+</head>
+<body>
+
+<section id="loginView" class="wrap">
+  <h1>Order Desk</h1>
+  <p class="sub">Sign in with the shop code your provider gave you.</p>
+  <form id="loginForm" class="card">
+    <label>Shop code<input id="shop" autocapitalize="none" autocomplete="off" required></label>
+    <label>Your name<input id="uname" autocomplete="username" required></label>
+    <label>PIN<input id="pin" type="password" inputmode="numeric" autocomplete="current-password" required></label>
+    <button class="btn" id="loginBtn">Sign in</button>
+    <p id="loginMsg" class="msg" role="alert"></p>
+  </form>
+</section>
+
+<div id="appView" hidden>
+  <header>
+    <div class="wrap">
+      <div class="grow"><b id="shopName"></b><div class="who" id="who"></div></div>
+      <span class="net" id="net">Live</span>
+      <button class="btn sm" id="out">Sign out</button>
+    </div>
+  </header>
+  <main class="wrap">
+    <div id="banner" class="banner" hidden></div>
+
+    <form id="orderForm" class="card" hidden>
+      <label>Customer<input id="cust" autocomplete="off" placeholder="Shop or patient name"></label>
+      <div id="items"></div>
+      <button type="button" class="btn ghost sm" id="addRow">Add medicine</button>
+      <label style="margin-top:12px">Notes<textarea id="notes" rows="2" placeholder="Delivery time, brand preference…"></textarea></label>
+      <button class="btn" id="saveBtn">Save order</button>
+    </form>
+
+    <div id="ownerBar" class="chips" hidden></div>
+    <h2 id="listTitle"></h2>
+    <div id="list"></div>
+  </main>
+</div>
+<div id="toast" role="status"></div>
+
+<script>
+// Paste your deployed Apps Script web app URL here (ends with /exec)
+const API_URL = 'PASTE_YOUR_WEB_APP_URL_HERE';
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const store = {
+  get(k, d) { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+};
+const MSG = {
+  LICENSE_INACTIVE: 'This shop’s subscription is inactive. Please contact your provider.',
+  LICENSE_EXPIRED: 'This shop’s subscription has expired. Please contact your provider.',
+  SESSION_EXPIRED: 'Session ended. Please sign in again.'
+};
+const LABEL = { pending: 'Pending', packed: 'Packed', delivered: 'Delivered', cancelled: 'Cancelled', queued: 'Waiting to send' };
+
+let S = store.get('session', null), orders = [], seen = null, filter = 'all';
+let fresh = new Set(), timer = null, busy = false, again = false;
+
+async function api(action, data = {}) {
+  const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action, token: S && S.token, ...data }) });
+  const j = await res.json();
+  if (!j.ok) {
+    if (j.error === 'SESSION_EXPIRED') logout(MSG.SESSION_EXPIRED);
+    const e = new Error(MSG[j.error] || j.error);
+    e.server = true;
+    throw e;
+  }
+  return j;
+}
+
+function toast(t) {
+  const el = $('#toast'); el.textContent = t; el.classList.add('show');
+  clearTimeout(toast.t); toast.t = setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+// ---------- login / logout ----------
+$('#loginForm').addEventListener('submit', async ev => {
+  ev.preventDefault();
+  const b = $('#loginBtn'); b.disabled = true; $('#loginMsg').textContent = '';
+  S = null;
+  try {
+    const j = await api('login', { shop_id: $('#shop').value, name: $('#uname').value, pin: $('#pin').value });
+    S = { token: j.token, name: j.name, role: j.role, shop: j.shop_name };
+    store.set('session', S);
+    $('#pin').value = '';
+    start();
+  } catch (e) {
+    $('#loginMsg').textContent = e instanceof TypeError ? 'No connection. Check your internet and try again.' : e.message;
+  }
+  b.disabled = false;
+});
+
+function logout(msg) {
+  S = null; store.set('session', null);
+  clearInterval(timer); seen = null; orders = [];
+  $('#appView').hidden = true; $('#loginView').hidden = false;
+  $('#loginMsg').textContent = msg || '';
+}
+$('#out').addEventListener('click', () => logout());
+
+// ---------- app ----------
+function start() {
+  $('#loginView').hidden = true; $('#appView').hidden = false;
+  $('#shopName').textContent = S.shop;
+  $('#who').textContent = S.name + (S.role === 'owner' ? ' (owner)' : '');
+  const owner = S.role === 'owner';
+  $('#orderForm').hidden = owner;
+  $('#ownerBar').hidden = !owner;
+  $('#listTitle').textContent = owner ? 'Orders, live' : 'Your orders';
+  render(); refresh();
+  clearInterval(timer);
+  timer = setInterval(refresh, owner ? 6000 : 20000);
+}
+
+async function flush() {
+  const q = store.get('outbox', []);
+  if (!q.length) return;
+  const rest = [];
+  for (let i = 0; i < q.length; i++) {
+    if (!S) { rest.push(...q.slice(i)); break; }
+    try { await api('addOrder', { order: q[i] }); }
+    catch (e) {
+      if (e.server) rest.push(q[i]);
+      else { rest.push(...q.slice(i)); break; }
+    }
+  }
+  store.set('outbox', rest);
+}
+
+async function refresh() {
+  if (!S) return;
+  if (busy) { again = true; return; }
+  busy = true;
+  try {
+    await flush();
+    const j = await api('listOrders');
+    const ids = new Set(j.orders.map(o => o.order_id));
+    if (seen && S.role === 'owner') {
+      j.orders.forEach(o => { if (!seen.has(o.order_id)) fresh.add(o.order_id); });
+      setTimeout(() => { fresh.clear(); render(); }, 8000);
+    }
+    seen = ids; orders = j.orders;
+    $('#banner').hidden = true;
+    setNet(true); render();
+  } catch (e) {
+    if (e.server) { $('#banner').textContent = e.message; $('#banner').hidden = false; setNet(true); }
+    else setNet(false);
+  } finally {
+    busy = false;
+    if (again) { again = false; refresh(); }
+  }
+}
+
+function setNet(ok) {
+  const n = $('#net');
+  const waiting = store.get('outbox', []).length;
+  n.className = 'net' + (ok ? '' : ' off');
+  n.textContent = ok ? 'Live' : (waiting ? 'Offline, ' + waiting + ' waiting' : 'Offline');
+}
+
+document.addEventListener('visibilitychange', () => { if (!document.hidden) refresh(); });
+window.addEventListener('online', refresh);
+
+// ---------- new order (agents) ----------
+function addRow(name = '', qty = '') {
+  const d = document.createElement('div');
+  d.className = 'row';
+  d.innerHTML = '<input class="in" placeholder="Medicine" autocomplete="off" aria-label="Medicine">' +
+    '<input class="iq" placeholder="Qty" inputmode="numeric" aria-label="Quantity">' +
+    '<button type="button" aria-label="Remove medicine">×</button>';
+  d.querySelector('.in').value = name; d.querySelector('.iq').value = qty;
+  d.querySelector('button').onclick = () => { if (document.querySelectorAll('.row').length > 1) d.remove(); };
+  $('#items').appendChild(d);
+}
+$('#addRow').addEventListener('click', () => { addRow(); $('#items').lastChild.querySelector('.in').focus(); });
+
+$('#orderForm').addEventListener('submit', ev => {
+  ev.preventDefault();
+  const items = [...document.querySelectorAll('.row')].map(r => {
+    const n = r.querySelector('.in').value.trim(), q = r.querySelector('.iq').value.trim();
+    return n ? (q ? n + ' × ' + q : n) : '';
+  }).filter(Boolean);
+  const customer = $('#cust').value.trim();
+  if (!customer || !items.length) { toast('Add a customer and at least one medicine.'); return; }
+  const o = {
+    order_id: crypto.randomUUID ? crypto.randomUUID() : Date.now() + '-' + Math.random().toString(36).slice(2),
+    customer, items: items.join('; '), notes: $('#notes').value.trim(), ts: new Date().toISOString()
+  };
+  store.set('outbox', [...store.get('outbox', []), o]); // saved on the phone first, so nothing is lost offline
+  $('#cust').value = ''; $('#notes').value = ''; $('#items').innerHTML = ''; addRow();
+  toast('Order saved. Sending…');
+  render(); refresh();
+});
+
+// ---------- list ----------
+function render() {
+  if (!S) return;
+  const queued = S.role === 'owner' ? [] : store.get('outbox', []).map(o => ({
+    order_id: o.order_id, created_at: o.ts, agent: S.name, customer: o.customer, items: o.items, notes: o.notes, status: 'queued'
+  }));
+  const all = [...queued, ...orders];
+  if (S.role === 'owner') {
+    const n = s => all.filter(o => o.status === s).length;
+    const chips = [['all', 'All', all.length], ['pending', 'Pending', n('pending')], ['packed', 'Packed', n('packed')], ['delivered', 'Delivered', n('delivered')]];
+    $('#ownerBar').innerHTML = chips.map(c =>
+      `<button class="chip" data-f="${c[0]}" aria-pressed="${filter === c[0]}">${c[1]} ${c[2]}</button>`).join('');
+  }
+  const list = all.filter(o => filter === 'all' || o.status === filter);
+  $('#list').innerHTML = list.length ? list.map(card).join('')
+    : '<p class="empty">' + (S.role === 'owner' ? 'No orders here yet. New orders appear on their own.' : 'No orders yet. Save your first order above.') + '</p>';
+}
+
+function card(o) {
+  const t = new Date(o.created_at);
+  const day = t.toDateString() === new Date().toDateString() ? '' : t.toLocaleDateString([], { day: 'numeric', month: 'short' }) + ', ';
+  const when = day + t.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  const lines = String(o.items).split(';').map(s => '<li>' + esc(s.trim()) + '</li>').join('');
+  const btn = (st, label) => `<button class="btn ghost sm" data-id="${esc(o.order_id)}" data-st="${st}">${label}</button>`;
+  let acts = '';
+  if (S.role === 'owner' && o.status !== 'queued') {
+    if (o.status === 'pending') acts = btn('packed', 'Mark packed') + btn('cancelled', 'Cancel');
+    else if (o.status === 'packed') acts = btn('delivered', 'Mark delivered') + btn('pending', 'Back to pending');
+    else acts = btn('pending', 'Reopen');
+  }
+  return `<article class="order ${esc(o.status)}${fresh.has(o.order_id) ? ' fresh' : ''}">
+    <div class="top"><b>${esc(o.customer)}</b><span class="tag">${LABEL[o.status] || esc(o.status)}</span></div>
+    <ul>${lines}</ul>
+    ${o.notes ? `<div class="meta">Note: ${esc(o.notes)}</div>` : ''}
+    <div class="meta">${S.role === 'owner' ? esc(o.agent) + ', ' : ''}${when}</div>
+    ${acts ? `<div class="acts">${acts}</div>` : ''}
+  </article>`;
+}
+
+$('#list').addEventListener('click', async ev => {
+  const b = ev.target.closest('button[data-st]');
+  if (!b) return;
+  const o = orders.find(x => x.order_id === b.dataset.id);
+  if (!o) return;
+  const old = o.status;
+  o.status = b.dataset.st; render(); // update the screen first, then confirm with the server
+  try { await api('setStatus', { order_id: o.order_id, status: o.status }); }
+  catch (e) { o.status = old; render(); toast(e instanceof TypeError ? 'No connection. Try again.' : e.message); }
+});
+
+$('#ownerBar').addEventListener('click', ev => {
+  const c = ev.target.closest('.chip');
+  if (c) { filter = c.dataset.f; render(); }
+});
+
+// ---------- startup ----------
+addRow();
+if (S && S.token) start();
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+</script>
+</body>
+</html>

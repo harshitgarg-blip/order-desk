@@ -74,6 +74,11 @@ header .btn{background:transparent;color:var(--on-pine);border-color:currentColo
 .cols{display:flex;align-items:flex-end;gap:2px;height:90px;margin-top:8px}
 .cols i{flex:1;background:var(--pine);border-radius:3px 3px 0 0;min-height:2px;opacity:.85}
 .axis{display:flex;justify-content:space-between;font-size:.75rem;color:var(--mute);margin-top:4px}
+.search{display:grid;grid-template-columns:118px 1fr;gap:8px;margin-bottom:8px}
+.search input{margin:0}
+select{font:inherit;font-size:16px;padding:11px 10px;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:8px}
+select:focus-visible{outline:2px solid var(--pine);outline-offset:2px}
+.hit{font-weight:700;color:var(--pine)}
 #toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:8px;max-width:90vw;opacity:0;pointer-events:none;transition:opacity .2s}
 #toast.show{opacity:1}
 @media (prefers-reduced-motion:reduce){.order.fresh{animation:none}}
@@ -117,6 +122,14 @@ header .btn{background:transparent;color:var(--on-pine);border-color:currentColo
       <button class="tab" role="tab" data-t="analytics" aria-selected="false">Analytics</button>
     </div>
     <div id="ownerBar" class="chips" hidden></div>
+    <div id="searchBar" class="search">
+      <select id="searchBy" aria-label="Search by">
+        <option value="medicine">Medicine</option>
+        <option value="shop">Shop</option>
+      </select>
+      <input id="q" type="search" placeholder="Search medicine" autocomplete="off" enterkeyhint="search" aria-label="Search orders">
+    </div>
+    <p id="resultCount" class="meta" hidden></p>
     <h2 id="listTitle"></h2>
     <div id="list"></div>
     <div id="analyticsView" hidden>
@@ -183,7 +196,7 @@ $('#loginForm').addEventListener('submit', async ev => {
 
 function logout(msg) {
   S = null; store.set('session', null);
-  clearInterval(timer); seen = null; orders = [];
+  clearInterval(timer); seen = null; orders = []; $('#q').value = '';
   $('#appView').hidden = true; $('#loginView').hidden = false;
   $('#loginMsg').textContent = msg || '';
 }
@@ -298,16 +311,25 @@ function render() {
     $('#ownerBar').innerHTML = chips.map(c =>
       `<button class="chip" data-f="${c[0]}" aria-pressed="${filter === c[0]}">${c[1]} ${c[2]}</button>`).join('');
   }
-  const list = all.filter(o => filter === 'all' || o.status === filter);
+  const q = $('#q').value.trim().toLowerCase(), by = $('#searchBy').value;
+  const meds = o => String(o.items).split(';').map(s => s.split('×')[0].trim().toLowerCase());
+  const match = o => !q || (by === 'shop' ? String(o.customer).toLowerCase().includes(q) : meds(o).some(m => m.includes(q)));
+  const list = all.filter(o => (filter === 'all' || o.status === filter) && match(o));
+  $('#resultCount').hidden = !q || tab === 'analytics';
+  $('#resultCount').textContent = list.length + ' of ' + all.length + ' orders match';
   $('#list').innerHTML = list.length ? list.map(card).join('')
-    : '<p class="empty">' + (S.role === 'owner' ? 'No orders here yet. New orders appear on their own.' : 'No orders yet. Save your first order above.') + '</p>';
+    : '<p class="empty">' + (q ? 'No orders match your search.' : S.role === 'owner' ? 'No orders here yet. New orders appear on their own.' : 'No orders yet. Save your first order above.') + '</p>';
 }
 
 function card(o) {
   const t = new Date(o.created_at);
   const day = t.toDateString() === new Date().toDateString() ? '' : t.toLocaleDateString([], { day: 'numeric', month: 'short' }) + ', ';
   const when = day + t.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  const lines = String(o.items).split(';').map(s => '<li>' + esc(s.trim()) + '</li>').join('');
+  const q = $('#q').value.trim().toLowerCase(), byMed = $('#searchBy').value === 'medicine';
+  const lines = String(o.items).split(';').map(s => {
+    const t = s.trim(), hit = q && byMed && t.split('×')[0].toLowerCase().includes(q);
+    return '<li' + (hit ? ' class="hit"' : '') + '>' + esc(t) + '</li>';
+  }).join('');
   const btn = (st, label) => `<button class="btn ghost sm" data-id="${esc(o.order_id)}" data-st="${st}">${label}</button>`;
   let acts = '';
   if (S.role === 'owner' && o.status !== 'queued') {
@@ -349,8 +371,8 @@ function setTab(t) {
   const a = t === 'analytics' && S.role === 'owner';
   document.querySelectorAll('.tab').forEach(b => b.setAttribute('aria-selected', String(b.dataset.t === t)));
   $('#ownerBar').hidden = S.role !== 'owner' || a;
-  $('#listTitle').hidden = a; $('#list').hidden = a; $('#analyticsView').hidden = !a;
-  if (a) loadAnalytics();
+  $('#searchBar').hidden = a; $('#listTitle').hidden = a; $('#list').hidden = a; $('#analyticsView').hidden = !a;
+  if (a) loadAnalytics(); else render();
 }
 $('#tabs').addEventListener('click', ev => { const b = ev.target.closest('.tab'); if (b) setTab(b.dataset.t); });
 $('#periodBar').addEventListener('click', ev => {
@@ -410,6 +432,10 @@ function drawAnalytics(j) {
   out += '</div>';
   $('#analyticsBody').innerHTML = out;
 }
+
+// ---------- search ----------
+$('#searchBy').addEventListener('change', () => { $('#q').placeholder = 'Search ' + $('#searchBy').value; render(); });
+$('#q').addEventListener('input', render);
 
 // ---------- startup ----------
 addRow();

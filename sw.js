@@ -1,5 +1,5 @@
 // Keeps the app shell available offline. Network first, so updates you deploy arrive straight away.
-const CACHE = 'order-desk-v2';
+const CACHE = 'order-desk-v3';
 const SHELL = ['./', 'index.html', 'manifest.json', 'icon-192.png', 'icon-512.png'];
 
 self.addEventListener('install', e => {
